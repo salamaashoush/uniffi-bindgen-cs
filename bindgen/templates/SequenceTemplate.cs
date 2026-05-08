@@ -13,7 +13,11 @@ class {{ ffi_converter_name }}: FfiConverterRustBuffer<{{ inner_type_name }}[]> 
             return [];
         }
 
-        var result = new {{ inner_type_name }}[(length)];
+        // Use Array.CreateInstance so the allocation is correct
+        // even when inner_type_name is itself an array type (e.g.
+        // `byte[]` produces a jagged `byte[][]`). `new T[length]`
+        // is a syntax error when T = `byte[]`.
+        var result = ({{ inner_type_name }}[])Array.CreateInstance(typeof({{ inner_type_name }}), length);
         var readFn = {{ inner_type|read_fn }};
         for (int i = 0; i < length; i++) {
             result[i] = readFn(stream);
