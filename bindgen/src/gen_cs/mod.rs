@@ -121,7 +121,13 @@ impl Config {
     pub fn access_modifier(&self) -> String {
         match self.access_modifier.as_ref() {
             Some(value) => value.clone(),
-            None => "internal".to_string(),
+            // Default to `public` so generated bindings are usable
+            // across assembly boundaries via ProjectReference /
+            // PackageReference. Override via
+            // `[bindings.csharp] access_modifier = "internal"` in
+            // the source crate's uniffi.toml when single-assembly
+            // packaging is desired.
+            None => "public".to_string(),
         }
     }
 
